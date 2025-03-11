@@ -60,8 +60,8 @@ async function startConsumer() {
 
                     if (a) {
                         console.log("Mensaje enviado al canal", body.channel + ":", { feature: body.feature, estadoRespuesta: false, mensaje: error.message });
-                    console.timeEnd("Tiempo de ejecuciónf");
                     }
+                    console.timeEnd("Tiempo de ejecuciónf");
                 } finally {
                     channel.ack(msg);
                 }
