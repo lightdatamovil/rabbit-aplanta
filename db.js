@@ -191,8 +191,6 @@ async function loadClients(dbConnection, companyId) {
                 nombre: row.nombre_fantasia,
             };
         });
-
-        return clientList[companyId];
     } catch (error) {
         console.error(`Error en getClients para la compañía ${companyId}:`, error);
         throw error;

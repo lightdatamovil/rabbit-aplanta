@@ -1,5 +1,3 @@
-
-
 import { connect } from 'amqplib';
 import dotenv from 'dotenv';
 import { aplanta } from './controller/aplantaController.js';

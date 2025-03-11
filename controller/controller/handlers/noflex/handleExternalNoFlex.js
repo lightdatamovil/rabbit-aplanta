@@ -18,7 +18,7 @@ import { informe } from "../../functions/informe.js";
 export async function handleExternalNoFlex(dbConnection, dataQr, companyId, userId) {
     try {
         const shipmentIdFromDataQr = dataQr.did;
-        const clientIdFromDataQr = dataQr.did;
+        const clientIdFromDataQr = dataQr.cliente;
 
         /// Busco la empresa externa
         const externalCompany = await getCompanyById(dataQr.empresa);
@@ -87,9 +87,9 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
         await sendToShipmentStateMicroService(dataQr.empresa, driver, shipmentIdFromDataQr);
 
 
-        externalDbConnection.end();
 
-        const body = await informe(dbConnection, companyId, clientIdFromDataQr, userId, didinterno);
+        const body = await informe(externalDbConnection, companyId, clientIdFromDataQr, userId, didinterno);
+        externalDbConnection.end();
         return { estadoRespuesta: true, mensaje: "Paquete puesto a planta  con exito", body: body };
     } catch (error) {
         console.error("Error en handleExternalNoFlex:", error);
