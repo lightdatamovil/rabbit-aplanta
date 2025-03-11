@@ -18,6 +18,7 @@ import { informe } from "../../functions/informe.js";
 export async function handleExternalNoFlex(dbConnection, dataQr, companyId, userId) {
     try {
         const shipmentIdFromDataQr = dataQr.did;
+        const clientIdFromDataQr = dataQr.did;
 
         /// Busco la empresa externa
         const externalCompany = await getCompanyById(dataQr.empresa);
@@ -44,7 +45,7 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
         /// Busco el chofer que se crea en la vinculacion de logisticas
         const driver = await checkIfExistLogisticAsDriverInExternalCompany(externalDbConnection, internalCompany.codigo);
         const consulta = 'SELECT didLocal FROM envios_exteriores WHERE didExterno = ?';
-        let didinterno = await executeQuery(dbConnection, consulta, [dataQr.did]);
+        let didinterno = await executeQuery(dbConnection, consulta, [clientIdFromDataQr]);
 
         // Verificamos si hay resultados y si la propiedad 'didLocal' existe
         if (didinterno.length > 0 && didinterno[0]?.didLocal) {
@@ -88,7 +89,7 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
 
         externalDbConnection.end();
 
-        const body = await informe(dbConnection, companyId, client, userId, didinterno);
+        const body = await informe(dbConnection, companyId, clientIdFromDataQr, userId, didinterno);
         return { estadoRespuesta: true, mensaje: "Paquete puesto a planta  con exito", body: body };
     } catch (error) {
         console.error("Error en handleExternalNoFlex:", error);

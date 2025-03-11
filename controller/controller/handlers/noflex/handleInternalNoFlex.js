@@ -12,12 +12,10 @@ export async function handleInternalNoFlex(dbConnection, dataQr, companyId, user
     try {
         const shipmentId = dataQr.did;
 
+        const clientId = dataQr.did;
+
         /// Chequeo si el envio ya fue colectado, entregado o cancelado
         await checkearEstadoEnvio(dbConnection, shipmentId);
-
-
-
-
 
         /// Actualizamos el estado del envio en el micro servicio
         await sendToShipmentStateMicroService(companyId, userId, shipmentId, 0, null, null);
@@ -25,7 +23,7 @@ export async function handleInternalNoFlex(dbConnection, dataQr, companyId, user
         /// Actualizamos el estado del envio en la base de datos
         await updateLastShipmentState(dbConnection, shipmentId);
 
-        const body = await informe(dbConnection, companyId, client, userId, shipmentId);
+        const body = await informe(dbConnection, companyId, clientId, userId, shipmentId);
         return { estadoRespuesta: true, mensaje: "Paquete puesto a planta  correctamente", body: body };
     } catch (error) {
         console.error("Error en handleInternoNoFlex:", error);
