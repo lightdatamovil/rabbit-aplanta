@@ -35,11 +35,11 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
             return check;
         }
 
-        const companyClientList = await getClientsByCompany(externalDbConnection, externalCompany);
+        const companyClientList = await getClientsByCompany(externalDbConnection, externalCompany.did);
         const client = companyClientList[dataQr.cliente];
 
         const internalCompany = await getCompanyById(companyId);
-        
+
 
         /// Busco el chofer que se crea en la vinculacion de logisticas
         const driver = await checkIfExistLogisticAsDriverInExternalCompany(externalDbConnection, internalCompany.codigo);
@@ -53,19 +53,19 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
         } else {
             didinterno = null
         }
-        if(didinterno == null){
-        /// Inserto en envios en la empresa interna
-         didinterno = await insertEnvios(
-            dbConnection,
-            companyId,
-            client.did,
-            0,
-            { id: "", sender_id: "" },
-            0,
-            1,
-            driver
-        );
-    }
+        if (didinterno == null) {
+            /// Inserto en envios en la empresa interna
+            didinterno = await insertEnvios(
+                dbConnection,
+                companyId,
+                client.did,
+                0,
+                { id: "", sender_id: "" },
+                0,
+                1,
+                driver
+            );
+        }
         /// Inserto en envios exteriores en la empresa interna
         await insertEnviosExteriores(
             dbConnection,
@@ -77,7 +77,7 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
         );
 
         // Asigno a la empresa externa
-       
+
 
         await updateLastShipmentState(dbConnection, didinterno);
         await sendToShipmentStateMicroService(companyId, userId, didinterno);
@@ -88,7 +88,7 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
 
         externalDbConnection.end();
 
-        const body = await informe(dbConnection, userId);
+        const body = await informe(dbConnection, companyId, client, userId, didinterno);
         return { estadoRespuesta: true, mensaje: "Paquete puesto a planta  con exito", body: body };
     } catch (error) {
         console.error("Error en handleExternalNoFlex:", error);
