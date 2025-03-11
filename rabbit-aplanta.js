@@ -1,3 +1,5 @@
+
+
 import { connect } from 'amqplib';
 import dotenv from 'dotenv';
 import { aplanta } from './controller/aplantaController.js';
@@ -22,7 +24,7 @@ async function startConsumer() {
         console.log(`[*] Esperando mensajes en la cola "${QUEUE_NAME_COLECTA}"`);
 
         channel.consume(QUEUE_NAME_COLECTA, async (msg) => {
-                 const start = process.hrtime();
+            console.time("Tiempo de ejecución");
             if (msg !== null) {
                 const body = JSON.parse(msg.content.toString());
                 try {
@@ -42,12 +44,12 @@ async function startConsumer() {
                     result.feature = "colecta";
 
                     channel.sendToQueue(body.channel, Buffer.from(JSON.stringify(result)), { persistent: true });
-                 //   console.timeEnd("Tiempo de ejecución");
                     console.log(
                         "[x] Mensaje enviado al canal",
                         body.channel + ":",
                         result
                     );
+                    console.timeEnd("Tiempo de ejecución");
 
                 } catch (error) {
                     console.error("[x] Error al procesar el mensaje:", error);
@@ -61,12 +63,7 @@ async function startConsumer() {
                     if (a) {
                         console.log("Mensaje enviado al canal", body.channel + ":", { feature: body.feature, estadoRespuesta: false, mensaje: error.message });
                     }
-                    const elapsed = process.hrtime(start);
-                    const seconds = elapsed[0];
-                    const nanoseconds = elapsed[1];
-                    const milliseconds = (seconds * 1000 + nanoseconds / 1e6).toFixed(3);
-
-                    console.log(`[x] Tiempo de ejecución: ${milliseconds}ms`);
+                    console.timeEnd("Tiempo de ejecución");
                 } finally {
                     channel.ack(msg);
                 }
