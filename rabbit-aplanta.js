@@ -22,7 +22,7 @@ async function startConsumer() {
         console.log(`[*] Esperando mensajes en la cola "${QUEUE_NAME_COLECTA}"`);
 
         channel.consume(QUEUE_NAME_COLECTA, async (msg) => {
-            console.time("Tiempo de ejecución");
+                 const start = process.hrtime();
             if (msg !== null) {
                 const body = JSON.parse(msg.content.toString());
                 try {
@@ -61,7 +61,12 @@ async function startConsumer() {
                     if (a) {
                         console.log("Mensaje enviado al canal", body.channel + ":", { feature: body.feature, estadoRespuesta: false, mensaje: error.message });
                     }
-                    console.timeEnd("Tiempo de ejecuciónf");
+                    const elapsed = process.hrtime(start);
+                    const seconds = elapsed[0];
+                    const nanoseconds = elapsed[1];
+                    const milliseconds = (seconds * 1000 + nanoseconds / 1e6).toFixed(3);
+
+                    console.log(`[x] Tiempo de ejecución: ${milliseconds}ms`);
                 } finally {
                     channel.ack(msg);
                 }
