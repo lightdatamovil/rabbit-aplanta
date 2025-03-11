@@ -62,7 +62,7 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
         }
         const companyClients = await getClientsByCompany(dbConnection, companyId);
         return {
-            cliente: `Cliente ${companyClients[clientId].nombre}`,
+            cliente: `Cliente ${companyClients[clientId]}`,
             aIngresarHoy,
             ingresadosHoyAPlantaCliente,
             ingresadosHoyChofer: chofer,

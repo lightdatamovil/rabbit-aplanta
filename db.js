@@ -178,13 +178,13 @@ async function loadClients(dbConnection, companyId) {
         const resultQueryUsers = await executeQuery(dbConnection, queryUsers, []);
 
         resultQueryUsers.forEach(row => {
-            const keySender = row.did;
+            const client = row.did;
 
-            if (!clientList[companyId][keySender]) {
-                clientList[companyId][keySender] = {};
+            if (!clientList[companyId][client]) {
+                clientList[companyId][client] = {};
             }
 
-            clientList[companyId][keySender] = {
+            clientList[companyId][client] = {
                 fecha_sincronizacion: row.fecha_sincronizacion,
                 did: row.did,
                 codigo: row.codigoVinculacionLogE,
