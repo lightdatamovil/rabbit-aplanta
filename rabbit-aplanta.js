@@ -41,7 +41,7 @@ async function startConsumer() {
 
                     const result = await aplanta(company, body.dataQr, body.userId);
 
-                    result.feature = "colecta";
+                    result.feature = "aplanta";
 
                     channel.sendToQueue(body.channel, Buffer.from(JSON.stringify(result)), { persistent: true });
                     console.log(
