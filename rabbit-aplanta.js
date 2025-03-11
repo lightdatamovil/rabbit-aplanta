@@ -42,7 +42,7 @@ async function startConsumer() {
                     result.feature = "colecta";
 
                     channel.sendToQueue(body.channel, Buffer.from(JSON.stringify(result)), { persistent: true });
-                    console.timeEnd("Tiempo de ejecución");
+                 //   console.timeEnd("Tiempo de ejecución");
                     console.log(
                         "[x] Mensaje enviado al canal",
                         body.channel + ":",
