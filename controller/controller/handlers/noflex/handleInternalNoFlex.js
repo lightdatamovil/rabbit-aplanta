@@ -1,3 +1,4 @@
+import { logRed } from "../../../../src/funciones/logsCustom.js";
 import { checkearEstadoEnvio } from "../../functions/checkarEstadoEnvio.js";
 import { informe } from "../../functions/informe.js";
 import { sendToShipmentStateMicroService } from "../../functions/sendToShipmentStateMicroService.js";
@@ -27,7 +28,7 @@ export async function handleInternalNoFlex(dbConnection, dataQr, companyId, user
 
         return { estadoRespuesta: true, mensaje: "Paquete puesto a planta  correctamente", body: body };
     } catch (error) {
-        console.error("Error en handleInternoNoFlex:", error);
+        logRed("Error en handleInternoNoFlex:", error);
         throw error;
     }
 }
