@@ -7,6 +7,7 @@ import { insertEnviosExteriores } from "../../functions/insertEnviosExteriores.j
 import { checkearEstadoEnvio } from "../../functions/checkarEstadoEnvio.js";
 import { checkIfExistLogisticAsDriverInExternalCompany } from "../../functions/checkIfExistLogisticAsDriverInExternalCompany.js";
 import { informe } from "../../functions/informe.js";
+import { logRed } from "../../../../src/funciones/logsCustom.js";
 
 /// Esta funcion se conecta a la base de datos de la empresa externa
 /// Checkea si el envio ya fue colectado, entregado o cancelado
@@ -50,7 +51,6 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
         // Verificamos si hay resultados y si la propiedad 'didLocal' existe
         if (didinterno.length > 0 && didinterno[0]?.didLocal) {
             didinterno = didinterno[0].didLocal;
-            console.log(didinterno, "didinterno");
         } else {
             didinterno = null
         }
@@ -92,7 +92,7 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
 
         return { estadoRespuesta: true, mensaje: "Paquete puesto a planta  con exito", body: body };
     } catch (error) {
-        console.error("Error en handleExternalNoFlex:", error);
+        logRed("Error en handleExternalNoFlex:", error);
         throw error;
     }
 }

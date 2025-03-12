@@ -1,4 +1,5 @@
 import { executeQuery, getClientsByCompany } from "../../../db.js";
+import { logRed } from "../../../src/funciones/logsCustom.js";
 
 export async function informe(dbConnection, companyId, clientId, userId, shipmentId) {
     const hoy = new Date().toISOString().split('T')[0];
@@ -73,7 +74,7 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
         };
 
     } catch (error) {
-        console.error("Error en informe:", error);
+        logRed("Error en informe:", error);
         throw error;
     }
 }

@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { aplanta } from './controller/aplantaController.js';
 import { verifyParameters } from './src/funciones/verifyParameters.js';
 import { getCompanyById, redisClient } from './db.js';
+import { logBlue, logGreen, logRed } from './src/funciones/logsCustom.js';
 
 dotenv.config({ path: process.env.ENV_FILE || '.env' });
 
@@ -19,38 +20,39 @@ async function startConsumer() {
 
         await channel.assertQueue(QUEUE_NAME_COLECTA, { durable: true });
 
-        console.log(`[*] Esperando mensajes en la cola "${QUEUE_NAME_COLECTA}"`);
+        logBlue(`Esperando mensajes en la cola "${QUEUE_NAME_COLECTA}"`);
 
         channel.consume(QUEUE_NAME_COLECTA, async (msg) => {
             console.time("Tiempo de ejecución");
             if (msg !== null) {
                 const body = JSON.parse(msg.content.toString());
                 try {
-                    console.log("[x] Mensaje recibido:", body);
+                    logGreen("[x] Mensaje recibido:", body);
 
                     const errorMessage = verifyParameters(body, ['dataQr', 'channel']);
 
                     if (errorMessage) {
-                        console.log("[x] Error al verificar los parámetros:", errorMessage);
-                        return { mensaje: errorMessage };
+                        logRed("[x] Error al verificar los parámetros:", errorMessage);
+                        throw new Error(errorMessage);
                     }
                     const company = await getCompanyById(body.companyId);
-                    console.log("companyque llega", company.did);
 
                     const result = await aplanta(company, body.dataQr, body.userId);
 
                     result.feature = "aplanta";
 
                     channel.sendToQueue(body.channel, Buffer.from(JSON.stringify(result)), { persistent: true });
-                    console.log(
-                        "[x] Mensaje enviado al canal",
+
+                    logGreen(
+                        "Mensaje enviado al canal",
                         body.channel + ":",
                         result
                     );
+
                     console.timeEnd("Tiempo de ejecución");
 
                 } catch (error) {
-                    console.error("[x] Error al procesar el mensaje:", error);
+                    logRed("Error al procesar el mensaje:", error);
 
                     let a = channel.sendToQueue(
                         body.channel,
@@ -59,7 +61,7 @@ async function startConsumer() {
                     );
 
                     if (a) {
-                        console.log("Mensaje enviado al canal", body.channel + ":", { feature: body.feature, estadoRespuesta: false, mensaje: error.message });
+                        logGreen("Mensaje enviado al canal", body.channel + ":", { feature: body.feature, estadoRespuesta: false, mensaje: error.message });
                     }
                     console.timeEnd("Tiempo de ejecución");
                 } finally {
@@ -68,7 +70,7 @@ async function startConsumer() {
             }
         });
     } catch (error) {
-        console.error('❌ Error al conectar con RabbitMQ:', error);
+        logRed('Error al conectar con RabbitMQ:', error);
     }
 }
 
