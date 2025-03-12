@@ -2,10 +2,10 @@ import { executeQuery, getClientsByCompany } from "../../../db.js";
 
 export async function informe(dbConnection, companyId, clientId, userId, shipmentId) {
     const hoy = new Date().toISOString().split('T')[0];
-    let aIngresarHoy = 0;
-    let ingresadosHoyAPlantaCliente = 0;
-    let choferAsignado = "Sin asignar";
-    let zonaEntrega = "";
+    let aingresarhoy = 0;
+    let ingresadoshot = 0;
+    let choferasignado = "Sin asignar";
+    let zonaentrega = "";
     let sucursal = "";
     let chofer = 0;
 
@@ -24,9 +24,9 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
 
         rows1.forEach(row => {
             if (row.estado === 1) {
-                ingresadosHoyAPlantaCliente++;
+                ingresadoshot++;
             } else {
-                aIngresarHoy++;
+                aingresarhoy++;
             }
         });
 
@@ -55,21 +55,23 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
             const rows3 = await executeQuery(dbConnection, sql3, [shipmentId]);
 
             if (rows3.length > 0) {
-                choferAsignado = rows3[0].choferAsignado || 'Sin asignar';
-                zonaEntrega = rows3[0].zona || "";
+                choferasignado = rows3[0].choferAsignado || 'Sin asignar';
+                zonaentrega = rows3[0].zona || "";
                 sucursal = rows3[0].sucursal || "";
             }
         }
         const companyClients = await getClientsByCompany(dbConnection, companyId);
+        
 
         return {
             cliente: `Cliente ${companyClients[clientId].nombre}`,
-            aIngresarHoy,
-            ingresadosHoyAPlantaCliente,
-            ingresadosHoyChofer: chofer,
-            choferAsignado,
-            sucursal,
-            zonaEntrega
+             aingresarhoy,
+             ingresadoshot,
+             ingresadosahora:0,
+             chofer:choferasignado,
+            choferasignado:"",
+             zonaentrega,
+            sucursal
         };
 
     } catch (error) {
