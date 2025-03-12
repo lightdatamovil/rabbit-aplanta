@@ -86,10 +86,10 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
         await updateLastShipmentState(externalDbConnection, shipmentIdFromDataQr);
         await sendToShipmentStateMicroService(dataQr.empresa, driver, shipmentIdFromDataQr);
 
-
-
         const body = await informe(externalDbConnection, companyId, clientIdFromDataQr, userId, didinterno);
+
         externalDbConnection.end();
+
         return { estadoRespuesta: true, mensaje: "Paquete puesto a planta  con exito", body: body };
     } catch (error) {
         console.error("Error en handleExternalNoFlex:", error);
