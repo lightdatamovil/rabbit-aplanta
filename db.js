@@ -1,6 +1,6 @@
 import redis from 'redis';
 import dotenv from 'dotenv';
-import { logRed } from './src/funciones/logsCustom';
+import { logPurple, logRed, logYellow } from './src/funciones/logsCustom.js';
 
 dotenv.config({ path: process.env.ENV_FILE || ".env" });
 
@@ -16,8 +16,8 @@ export const redisClient = redis.createClient({
     password: redisPassword,
 });
 
-redisClient.on('error', (err) => {
-    logRed('Error al conectar con Redis:', err);
+redisClient.on('error', (error) => {
+    logRed(`Error al conectar con Redis: ${error.message}`);
 });
 
 export async function updateRedis(empresaId, envioId, choferId) {
@@ -43,6 +43,7 @@ export async function updateRedis(empresaId, envioId, choferId) {
 let companiesList = {};
 let clientList = {};
 let accountList = {};
+let driverList = {};
 
 export function getProdDbConfig(company) {
     return {
@@ -60,7 +61,7 @@ async function loadCompaniesFromRedis() {
         companiesList = JSON.parse(companiesListString);
 
     } catch (error) {
-        logRed("Error en loadCompaniesFromRedis:", error);
+        logRed(`Error en loadCompaniesFromRedis: ${error.message}`);
         throw error;
     }
 }
@@ -75,14 +76,14 @@ export async function getCompanyById(companyId) {
 
                 company = companiesList[companyId];
             } catch (error) {
-                logRed("Error al cargar compañías desde Redis:", error);
+                logRed(`Error al cargar compañías desde Redis: ${error.message}`);
                 throw error;
             }
         }
 
         return company;
     } catch (error) {
-        logRed("Error en getCompanyById:", error);
+        logRed(`Error en getCompanyById: ${error.message}`);
         throw error;
     }
 }
@@ -95,7 +96,7 @@ export async function getCompanyByCode(companyCode) {
             try {
                 await loadCompaniesFromRedis();
             } catch (error) {
-                logRed("Error al cargar compañías desde Redis:", error);
+                logRed(`Error al cargar compañías desde Redis: ${error.message}`);
                 throw error;
             }
         }
@@ -112,7 +113,7 @@ export async function getCompanyByCode(companyCode) {
 
         return company;
     } catch (error) {
-        logRed("Error en getCompanyByCode:", error);
+        logRed(`Error en getCompanyByCode: ${error.message}`);
         throw error;
     }
 }
@@ -146,7 +147,7 @@ async function loadAccountList(dbConnection, companyId, senderId) {
 
         return accountList[companyId] ? accountList[companyId][senderId] : null;
     } catch (error) {
-        logRed("Error en obtenerMisCuentas:", error);
+        logRed(`Error en obtenerMisCuentas: ${error.message}`);
         throw error;
     }
 }
@@ -161,7 +162,7 @@ export async function getAccountBySenderId(dbConnection, companyId, senderId) {
 
         return account;
     } catch (error) {
-        logRed("Error en getAccountBySenderId:", error);
+        logRed(`Error en getAccountBySenderId: ${error.message}`);
         throw error;
     }
 }
@@ -192,7 +193,7 @@ async function loadClients(dbConnection, companyId) {
             };
         });
     } catch (error) {
-        logRed(`Error en getClients para la compañía ${companyId}:`, error);
+        logRed(`Error en loadClients para la compañía ${companyId}: ${error}`);
         throw error;
     }
 }
@@ -207,14 +208,77 @@ export async function getClientsByCompany(dbConnection, companyId) {
 
                 companyClients = clientList[companyId];
             } catch (error) {
-                logRed("Error al cargar compañías desde Redis:", error);
+                logRed(`Error al cargar compañías desde Redis: ${error.message}`);
                 throw companyClients;
             }
         }
 
         return companyClients;
     } catch (error) {
-        logRed("Error en getZonesByCompany:", error);
+        logRed(`Error en getClientsByCompany: ${error.message}`);
+        throw error;
+    }
+}
+
+async function loadDrivers(dbConnection, companyId) {
+    if (!driverList[companyId]) {
+        driverList[companyId] = {}
+    }
+
+    try {
+        const queryUsers = `
+            SELECT sistema_usuarios.did, sistema_usuarios.nombre 
+            FROM sistema_usuarios_accesos
+            INNER JOIN sistema_usuarios ON sistema_usuarios_accesos.did = sistema_usuarios.did
+            WHERE sistema_usuarios_accesos.perfil IN (3, 6)
+            AND sistema_usuarios_accesos.elim = 0
+            AND sistema_usuarios_accesos.superado = 0
+            AND sistema_usuarios.elim = 0
+            AND sistema_usuarios.superado = 0
+        `;
+
+        const resultQueryUsers = await executeQuery(dbConnection, queryUsers, []);
+
+        for (let i = 0; i < resultQueryUsers.length; i++) {
+            const row = resultQueryUsers[i];
+
+            if (!driverList[companyId][row.did]) {
+                driverList[companyId][row.did] = {};
+            }
+
+            driverList[companyId][row.did] = {
+                id: row.id,
+                id_origen: row.id_origen,
+                fecha_sincronizacion: row.fecha_sincronizacion,
+                did: row.did,
+                codigo: row.codigo_empleado,
+                nombre: row.nombre,
+            };
+        }
+    } catch (error) {
+        logRed(`Error en loadDrivers para la compañía ${companyId}: ${error.message}`);
+        throw error;
+    }
+}
+
+export async function getDriversByCompany(dbConnection, companyId) {
+    try {
+        let companyDrivers = driverList[companyId];
+
+        if (companyDrivers == undefined || Object.keys(driverList).length === 0) {
+            try {
+                await loadDrivers(dbConnection, companyId);
+
+                companyDrivers = driverList[companyId];
+            } catch (error) {
+                logRed(`Error al cargar compañías desde Redis: ${error.message}`);
+                throw companyDrivers;
+            }
+        }
+
+        return companyDrivers;
+    } catch (error) {
+        logRed(`Error en getDriversByCompany para la compañía ${companyId}: ${error.message}`);
         throw error;
     }
 }
@@ -231,7 +295,7 @@ export async function executeQuery(connection, query, values) {
             });
         });
     } catch (error) {
-        logRed("Error al ejecutar la query:", error);
+        logRed(`Error al ejecutar la query: ${error.message}`);
         throw error;
     }
 }

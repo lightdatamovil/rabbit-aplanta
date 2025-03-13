@@ -35,7 +35,7 @@ export async function aplanta(company, dataQr, userId) {
 
         return response;
     } catch (error) {
-        logRed("Error en poner a planta :", error);
+        logRed(`Error en poner a planta: ${error.message}`)
         throw error;
     }
 }

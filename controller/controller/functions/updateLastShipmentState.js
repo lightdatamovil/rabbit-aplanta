@@ -47,7 +47,7 @@ export async function updateLastShipmentState(dbConnection, did) {
 
 
     } catch (error) {
-        logRed("Error en updateLastShipmentState:", error);
+        logRed(`Error en updateLastShipmentState:${error.message}`);
         throw error;
     }
 }

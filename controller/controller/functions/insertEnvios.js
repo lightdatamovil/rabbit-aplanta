@@ -11,14 +11,14 @@ export async function insertEnvios(dbConnection, companyId, clientId, accountId,
 
     try {
         const queryInsertEnvios = `
-            INSERT INTO envios (did, ml_shipment_id, ml_vendedor_id, didCliente, quien, lote, didCuenta, ml_qr_seguridad, fecha_inicio, flex, exterior, fechaunix)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO envios (did, ml_shipment_id, ml_vendedor_id, didCliente, quien, lote, didCuenta, ml_qr_seguridad, fecha_inicio, flex, exterior, fechaunix, choferAsignado)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const result = await executeQuery(
             dbConnection,
             queryInsertEnvios,
-            [0, idshipment, senderid, clientId, 1, lote, accountId, JSON.stringify(dataQr), fecha_inicio, flex, externo, fechaunix],
+            [0, idshipment, senderid, clientId, 1, lote, accountId, JSON.stringify(dataQr), fecha_inicio, flex, externo, fechaunix, driverId],
         );
 
         const sqlInsertHistorial = `
@@ -58,7 +58,7 @@ export async function insertEnvios(dbConnection, companyId, clientId, accountId,
 
         return result.insertId;
     } catch (error) {
-        logRed('Error en insertarPaquete:', error);
+        logRed('Error en insertarPaquete:', error.message);
         throw error;
     }
 }

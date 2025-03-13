@@ -1,5 +1,5 @@
-import { executeQuery, getClientsByCompany } from "../../../db.js";
-import { logRed } from "../../../src/funciones/logsCustom.js";
+import { executeQuery, getClientsByCompany, getDriversByCompany } from "../../../db.js";
+import { logRed, logYellow } from "../../../src/funciones/logsCustom.js";
 
 export async function informe(dbConnection, companyId, clientId, userId, shipmentId) {
     const hoy = new Date().toISOString().split('T')[0];
@@ -62,21 +62,26 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
             }
         }
         const companyClients = await getClientsByCompany(dbConnection, companyId);
-        
+
+        const companyDrivers = await getDriversByCompany(dbConnection, companyId);
+        logYellow(`companyClients: ${JSON.stringify(companyClients)}`);
+        logYellow(`Cliente: ${clientId}`);
+        if (companyClients[clientId] === undefined) {
+            throw new Error("Cliente no encontrado");
+        }
 
         return {
-            cliente: `Cliente ${companyClients[clientId].nombre}`,
-             aingresarhoy,
-             ingresadoshot,
-             ingresadosahora:0,
-             chofer:choferasignado,
-            choferasignado:"",
-             zonaentrega,
+            cliente: `Cliente ${companyClients[clientId]?.nombre || 'Sin informacion'}`,
+            aingresarhoy,
+            ingresadoshot,
+            ingresadosahora: 0,
+            chofer: companyDrivers[choferasignado]?.nombre || 'Sin informacion',
+            zonaentrega,
             sucursal
         };
 
     } catch (error) {
-        logRed("Error en informe:", error);
+        logRed(`Error en informe: ${error.message}`);
         throw error;
     }
 }
