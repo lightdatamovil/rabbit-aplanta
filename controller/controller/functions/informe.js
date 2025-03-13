@@ -85,7 +85,7 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
             aingresarhoy,
             ingresadoshot,
             ingresadosahora: 0,
-            chofer: companyDrivers[choferasignado]?.nombre || 'Sin informacion',
+            chofer,
             zonaentrega,
             sucursal
         };
