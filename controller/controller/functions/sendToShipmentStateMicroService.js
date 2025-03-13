@@ -17,7 +17,7 @@ export async function sendToShipmentStateMicroService(companyId, userId, shipmen
         const message = {
             didempresa: companyId,
             didenvio: shipmentId,
-            estado: 0,
+            estado: 1,
             subestado: null,
             estadoML: null,
             fecha: formatFechaUTC3(),
