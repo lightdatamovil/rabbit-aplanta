@@ -28,7 +28,7 @@ export async function sendToShipmentStateMicroService(companyId, userId, shipmen
             if (err) {
                 logRed('❌ Error al enviar el mensaje:', err);
             } else {
-                logYellow('✅ Mensaje enviado correctamente y confirmado por RabbitMQ.');
+                logGreen('✅ Mensaje enviado correctamente al microservicio de estados');
             }
             connection.close();
         });
