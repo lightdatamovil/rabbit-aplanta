@@ -25,7 +25,7 @@ export async function handleInternalNoFlex(dbConnection, dataQr, companyId, user
 
 
         /// Actualizamos el estado del envio en la base de datos
-        await updateLastShipmentState(dbConnection, shipmentId);
+    
         logCyan("Se actualizo el estado del envio en la base de datos");
 
         const body = await informe(dbConnection, companyId, clientId, userId, shipmentId);
