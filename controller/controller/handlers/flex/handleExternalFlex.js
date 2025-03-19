@@ -21,7 +21,7 @@ import { logCyan } from "../../../../src/funciones/logsCustom.js";
 export async function handleExternalFlex(dbConnection, company, dataQr, userId) {
     const senderid = dataQr.sender_id;
     const shipmentId = dataQr.id;
-const codLocal= company.codigo;
+    const codLocal = company.codigo;
     // Se llama logisticas y se toman de la tabla de clientes porque al vincularlas se crea un
     // cliente con el código de vinculación
     const queryLogisticasExternas = `
@@ -110,7 +110,7 @@ const codLocal= company.codigo;
             internalShipmentId = internalShipmentId[0].didLocal;
             logCyan("Encontre el envio en envios exteriores");
         } else {
-            internalShipmentId = await insertEnvios(dbConnection, company.did, externalLogisticId, 0, dataQr, 1, 1,userId);
+            internalShipmentId = await insertEnvios(dbConnection, company.did, externalLogisticId, 0, dataQr, 1, 1, userId);
             logCyan("Inserte el envio en envios");
         }
 
@@ -119,12 +119,12 @@ const codLocal= company.codigo;
 
         /// Actualizo el estado del envío y lo envío al microservicio de estados en la logística interna
 
-        await sendToShipmentStateMicroService(dbConnection,userId ,internalShipmentId);
+        await sendToShipmentStateMicroService(company.did, userId, internalShipmentId);
         logCyan("Actualice el estado del envio y lo envie al microservicio de estados en la logistica interna");
 
         /// Actualizo el estado del envío y lo envío al microservicio de estados en la logística externa
-    
-        await sendToShipmentStateMicroService(externalDbConnection,driver ,externalShipmentId);
+
+        await sendToShipmentStateMicroService(externalCompanyId, driver, externalShipmentId);
         logCyan("Actualice el estado del envio y lo envie al microservicio de estados en la logistica externa");
         externalDbConnection.end();
 
