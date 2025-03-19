@@ -26,7 +26,7 @@ export async function insertEnvios(dbConnection, companyId, clientId, accountId,
             VALUES (?, ?, ?, ?, ?)
         `;
 
-        const ver = await executeQuery(dbConnection, sqlInsertHistorial, [result.insertId, 1, 1, fechaunix, driverId]);
+        await executeQuery(dbConnection, sqlInsertHistorial, [result.insertId, 1, 1, fechaunix, driverId]);
 
         if (result.insertId) {
             await axios.post(
@@ -52,13 +52,12 @@ export async function insertEnvios(dbConnection, companyId, clientId, accountId,
                 LIMIT 1
             `;
 
-
             await executeQuery(dbConnection, updateSql, [result.insertId, result.insertId]);
         }
 
         return result.insertId;
     } catch (error) {
-        logRed('Error en insertarPaquete:', error.stack);
+        logRed(`Error en insertarPaquete: ${error.stack}`);
         throw error;
     }
 }

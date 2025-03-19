@@ -10,10 +10,6 @@ const QUEUE_ESTADOS = process.env.QUEUE_ESTADOS;
 
 export async function sendToShipmentStateMicroService(companyId, userId, shipmentId) {
     try {
-        const connection = await connect(RABBITMQ_URL);
-        const channel = await connection.createChannel();
-        await channel.assertQueue(QUEUE_ESTADOS, { durable: true });
-
         const message = {
             didempresa: companyId,
             didenvio: shipmentId,
@@ -24,6 +20,9 @@ export async function sendToShipmentStateMicroService(companyId, userId, shipmen
             quien: userId
         };
 
+        const connection = await connect(RABBITMQ_URL);
+        const channel = await connection.createChannel();
+        await channel.assertQueue(QUEUE_ESTADOS, { durable: true });
         channel.sendToQueue(QUEUE_ESTADOS, Buffer.from(JSON.stringify(message)), { persistent: true }, (err, ok) => {
             if (err) {
                 logRed('❌ Error al enviar el mensaje:', err);

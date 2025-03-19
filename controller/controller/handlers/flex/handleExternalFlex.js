@@ -8,7 +8,7 @@ import { sendToShipmentStateMicroService } from "../../functions/sendToShipmentS
 import { checkearEstadoEnvio } from "../../functions/checkarEstadoEnvio.js";
 import { checkIfExistLogisticAsDriverInExternalCompany } from "../../functions/checkIfExistLogisticAsDriverInExternalCompany.js";
 import { informe } from "../../functions/informe.js";
-import { logCyan } from "../../../../src/funciones/logsCustom.js";
+import { logCyan, logYellow } from "../../../../src/funciones/logsCustom.js";
 
 /// Esta funcion busca las logisticas vinculadas
 /// Reviso si el envío ya fue colectado cancelado o entregado en la logística externa
@@ -100,7 +100,6 @@ export async function handleExternalFlex(dbConnection, company, dataQr, userId) 
             return check;
         };
         logCyan("El envio no fue colectado cancelado o entregado");
-
         let internalShipmentId
         const consulta = 'SELECT didLocal FROM envios_exteriores WHERE didExterno = ?';
 
