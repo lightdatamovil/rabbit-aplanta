@@ -4,12 +4,11 @@ import { aplanta } from './controller/aplantaController.js';
 import { verifyParameters } from './src/funciones/verifyParameters.js';
 import { getCompanyById, redisClient } from './db.js';
 import { logBlue, logGreen, logPurple, logRed } from './src/funciones/logsCustom.js';
-import { Worker } from 'worker_threads'; // Importamos worker_threads
 
 dotenv.config({ path: process.env.ENV_FILE || '.env' });
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL;
-const QUEUE_NAME_COLECTA = process.env.QUEUE_NAME_COLECTA;
+const QUEUE_NAME_COLECTA = process.env.QUEUE_NAME_COLECTA;;
 
 async function startConsumer() {
     try {
@@ -31,36 +30,23 @@ async function startConsumer() {
                     logGreen(`Mensaje recibido: ${JSON.stringify(body)}`);
 
                     const errorMessage = verifyParameters(body, ['dataQr', 'channel']);
+
                     if (errorMessage) {
-                        logRed("Error al verificar los parámetros:", errorMessage);
+                        logRed("Error al verificar los parámetros:", error.stackMessage);
                         throw new Error(errorMessage);
                     }
+                    const company = await getCompanyById(body.companyId);
 
-                    // En vez de procesar directamente, usamos un Worker thread
-                    const worker = new Worker('./worker.js', { workerData: { body } });
+                    const result = await aplanta(company, body.dataQr, body.userId);
 
-                    worker.on('message', async (result) => {
-                        try {
-                            result.feature = "aplanta";
-                            channel.sendToQueue(body.channel, Buffer.from(JSON.stringify(result)), { persistent: true });
-                            logGreen(`Mensaje enviado al canal ${body.channel} : ${JSON.stringify(result)}`);
-                        } catch (error) {
-                            logRed(`Error al enviar mensaje al canal: ${error.stack}`);
-                        }
-                    });
+                    result.feature = "aplanta";
 
-                    worker.on('error', (error) => {
-                        logRed(`Error en el worker: ${error.stack}`);
-                    });
+                    channel.sendToQueue(body.channel, Buffer.from(JSON.stringify(result)), { persistent: true });
 
-                    worker.on('exit', (code) => {
-                        if (code !== 0) {
-                            logRed(`El worker terminó con código ${code}`);
-                        }
-                    });
+                    logGreen(`Mensaje enviado al canal ${body.channel} : ${JSON.stringify(result)}`);
 
                     const endTime = performance.now();
-                    logPurple(`Tiempo de ejecución del worker: ${endTime - startTime} ms`);
+                    logPurple(`Tiempo de ejecución: ${endTime - startTime} ms`);
 
                 } catch (error) {
                     logRed(`Error al procesar el mensaje: ${error.stack}`);
@@ -74,7 +60,6 @@ async function startConsumer() {
                     if (a) {
                         logGreen("Mensaje enviado al canal", body.channel + ":", { feature: body.feature, estadoRespuesta: false, mensaje: error.stack, error: true });
                     }
-
                     const endTime = performance.now();
                     logPurple(`Tiempo de ejecución: ${endTime - startTime} ms`);
                 } finally {
