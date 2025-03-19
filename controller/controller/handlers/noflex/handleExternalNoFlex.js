@@ -87,7 +87,7 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
         );
         logCyan("Inserté en envios exteriores");
 
-      
+
         await sendToShipmentStateMicroService(companyId, userId, internalShipmentId);
         logCyan("Actualicé el estado del envio a colectado y envié el estado del envio en los microservicios internos");
 
@@ -108,7 +108,7 @@ export async function handleExternalNoFlex(dbConnection, dataQr, companyId, user
 
         return { estadoRespuesta: true, mensaje: "Paquete puesto a planta  con exito", body: body };
     } catch (error) {
-        logRed(`Error en handleExternalNoFlex: ${error.message}`);
+        logRed(`Error en handleExternalNoFlex: ${error.stack}`);
         throw error;
     }
 }

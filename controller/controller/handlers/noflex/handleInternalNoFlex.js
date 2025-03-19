@@ -25,14 +25,14 @@ export async function handleInternalNoFlex(dbConnection, dataQr, companyId, user
 
 
         /// Actualizamos el estado del envio en la base de datos
-    
+
         logCyan("Se actualizo el estado del envio en la base de datos");
 
         const body = await informe(dbConnection, companyId, clientId, userId, shipmentId);
 
         return { estadoRespuesta: true, mensaje: "Paquete puesto a planta  correctamente", body: body };
     } catch (error) {
-        logRed(`Error en handleInternoNoFlex: ${error.message}`);
+        logRed(`Error en handleInternoNoFlex: ${error.stack}`);
         throw error;
     }
 }
