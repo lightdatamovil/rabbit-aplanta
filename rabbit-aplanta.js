@@ -32,7 +32,7 @@ async function startConsumer() {
                     const errorMessage = verifyParameters(body, ['dataQr', 'channel']);
 
                     if (errorMessage) {
-                        logRed("Error al verificar los parámetros:", error.stackMessage);
+                        logRed("Error al verificar los parámetros:", error.messageMessage);
                         throw new Error(errorMessage);
                     }
                     const company = await getCompanyById(body.companyId);
@@ -49,16 +49,16 @@ async function startConsumer() {
                     logPurple(`Tiempo de ejecución: ${endTime - startTime} ms`);
 
                 } catch (error) {
-                    logRed(`Error al procesar el mensaje: ${error.stack}`);
+                    logRed(`Error al procesar el mensaje: ${error.message}`);
 
                     let a = channel.sendToQueue(
                         body.channel,
-                        Buffer.from(JSON.stringify({ feature: body.feature, estadoRespuesta: false, mensaje: error.stack, error: true })),
+                        Buffer.from(JSON.stringify({ feature: body.feature, estadoRespuesta: false, mensaje: error.message,error: true })),
                         { persistent: true }
                     );
 
                     if (a) {
-                        logGreen("Mensaje enviado al canal", body.channel + ":", { feature: body.feature, estadoRespuesta: false, mensaje: error.stack, error: true });
+                        logGreen("Mensaje enviado al canal", body.channel + ":", { feature: body.feature, estadoRespuesta: false, mensaje: error.message,error: true });
                     }
                     const endTime = performance.now();
                     logPurple(`Tiempo de ejecución: ${endTime - startTime} ms`);
@@ -68,7 +68,7 @@ async function startConsumer() {
             }
         });
     } catch (error) {
-        logRed('Error al conectar con RabbitMQ:', error.stack);
+        logRed('Error al conectar con RabbitMQ:', error.message);
     }
 }
 
