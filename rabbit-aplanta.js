@@ -44,25 +44,21 @@ async function startConsumer() {
                     channel.sendToQueue(body.channel, Buffer.from(JSON.stringify(result)), { persistent: true });
 
                     logGreen(`Mensaje enviado al canal ${body.channel} : ${JSON.stringify(result)}`);
-
-                    const endTime = performance.now();
-                    logPurple(`Tiempo de ejecución: ${endTime - startTime} ms`);
-
                 } catch (error) {
                     logRed(`Error al procesar el mensaje: ${error.message}`);
 
                     let a = channel.sendToQueue(
                         body.channel,
-                        Buffer.from(JSON.stringify({ feature: body.feature, estadoRespuesta: false, mensaje: error.message,error: true })),
+                        Buffer.from(JSON.stringify({ feature: body.feature, estadoRespuesta: false, mensaje: error.message, error: true })),
                         { persistent: true }
                     );
 
                     if (a) {
-                        logGreen("Mensaje enviado al canal", body.channel + ":", { feature: body.feature, estadoRespuesta: false, mensaje: error.message,error: true });
+                        logGreen("Mensaje enviado al canal", body.channel + ":", { feature: body.feature, estadoRespuesta: false, mensaje: error.message, error: true });
                     }
+                } finally {
                     const endTime = performance.now();
                     logPurple(`Tiempo de ejecución: ${endTime - startTime} ms`);
-                } finally {
                     channel.ack(msg);
                 }
             }
