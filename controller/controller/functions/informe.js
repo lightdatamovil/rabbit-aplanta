@@ -1,5 +1,6 @@
 import { executeQuery, getClientsByCompany, getDriversByCompany } from "../../../db.js";
 import { logCyan, logPurple, logRed, logYellow } from "../../../src/funciones/logsCustom.js";
+const contadoresIngresados = {}; 
 
 export async function informe(dbConnection, companyId, clientId, userId, shipmentId) {
     const hoy = new Date().toISOString().split('T')[0];
@@ -30,22 +31,9 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
                 amountOfAPlanta++;
             }
         });
-// Objeto para almacenar los contadores en memoria
-const contadoresIngresados = {}; 
+
 
 // Función para incrementar el contador
-function incrementarIngresados(fecha, empresa, chofer) {
-    const clave = `${fecha}:${empresa}:${chofer}`;
-    if (!contadoresIngresados[clave]) {
-        contadoresIngresados[clave] = 0;
-    }
-    contadoresIngresados[clave]++;
-}
-
-// Función para obtener el total ingresado
-function obtenerIngresados(fecha, empresa, chofer) {
-    return contadoresIngresados[`${fecha}:${empresa}:${chofer}`] || 0;
-}
 
 // En algún lugar donde se registre un nuevo ingreso:
 incrementarIngresados(hoy, companyId, userId);
@@ -120,4 +108,19 @@ logPurple(`Ingresados hoy por chofer: ${ingresadosHoyChofer}`);
         logRed(`Error en informe: ${error.stack}`);
         throw error;
     }
+}
+
+
+
+function incrementarIngresados(fecha, empresa, chofer) {
+    const clave = `${fecha}:${empresa}:${chofer}`;
+    if (!contadoresIngresados[clave]) {
+        contadoresIngresados[clave] = 0;
+    }
+    contadoresIngresados[clave]++;
+}
+
+// Función para obtener el total ingresado
+function obtenerIngresados(fecha, empresa, chofer) {
+    return contadoresIngresados[`${fecha}:${empresa}:${chofer}`] || 0;
 }
