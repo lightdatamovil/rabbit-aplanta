@@ -30,24 +30,31 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
                 amountOfAPlanta++;
             }
         });
+// Objeto para almacenar los contadores en memoria
+const contadoresIngresados = {}; 
 
-        const queryIngresadosHoyChofer = `
-                SELECT COUNT(*) AS total 
-                FROM envios_historial 
-                WHERE elim = 0
-                AND superado = 0
-                AND quien = ? 
-                AND estado = 1
-                AND autofecha BETWEEN ? AND ?;
-        `;
+// Función para incrementar el contador
+function incrementarIngresados(fecha, empresa, chofer) {
+    const clave = `${fecha}:${empresa}:${chofer}`;
+    if (!contadoresIngresados[clave]) {
+        contadoresIngresados[clave] = 0;
+    }
+    contadoresIngresados[clave]++;
+}
 
-        const startTime2 = performance.now();
-        const resultIngresadosHoyChofer = await executeQuery(dbConnection, queryIngresadosHoyChofer, [userId, `${hoy} 00:00:00`, `${hoy} 23:59:59`], true);
-        let endTime2 = performance.now();
-        logPurple(`Tiempo de ejecución2: ${endTime2 - startTime2} ms`);
+// Función para obtener el total ingresado
+function obtenerIngresados(fecha, empresa, chofer) {
+    return contadoresIngresados[`${fecha}:${empresa}:${chofer}`] || 0;
+}
 
-        const ingresadosHoyChofer = resultIngresadosHoyChofer[0]?.total || 0;
+// En algún lugar donde se registre un nuevo ingreso:
+incrementarIngresados(hoy, companyId, userId);
 
+// Reemplazo de la consulta SQL con la variable local
+const ingresadosHoyChofer = obtenerIngresados(hoy, companyId, userId);
+logPurple(`Ingresados hoy por chofer: ${ingresadosHoyChofer}`);
+
+    
         let choferasignado;
         let zonaentrega;
         let sucursal;
