@@ -1,15 +1,22 @@
-import { getAccountBySenderId, getProdDbConfig } from "../db.js";
+import { getAccountBySenderId, getLocalDbConfig, getProdDbConfig } from "../db.js";
 import { handleInternalFlex } from "./controller/handlers/flex/handleInternalFlex.js";
 import { handleExternalFlex } from "./controller/handlers/flex/handleExternalFlex.js";
 import { handleExternalNoFlex } from "./controller/handlers/noflex/handleExternalNoFlex.js";
 import { handleInternalNoFlex } from "./controller/handlers/noflex/handleInternalNoFlex.js";
 import mysql from "mysql";
 import { logCyan, logRed } from "../src/funciones/logsCustom.js";
+import { crearLog } from "../src/funciones/crear_log.js";
 
-export async function aplanta(company, dataQr, userId) {
+
+export async function aplanta(company, dataQr, userId,body) {
     const dbConfig = getProdDbConfig(company);
     const dbConnection = mysql.createConnection(dbConfig);
     dbConnection.connect();
+
+    const dbConfigLocal = getLocalDbConfig();
+    const dbConnectionLocal = mysql.createConnection(dbConfigLocal);
+    dbConnectionLocal.connect();
+       
 
     try {
         let response;
@@ -37,9 +44,10 @@ export async function aplanta(company, dataQr, userId) {
                 response = await handleExternalNoFlex(dbConnection, dataQr, company.did, userId);
             }
         }
-
+crearLog(company.did, userId, dataQr.did, "1", body, userId, dbConnectionLocal, JSON.stringify(response));
         return response;
     } catch (error) {
+        crearLog(company.did, userId, dataQr.did, "-1", body, userId, dbConnectionLocal, error.stack);
         logRed(`Error en poner a planta: ${error.stack}`)
         throw error;
     }

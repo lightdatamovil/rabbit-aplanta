@@ -37,7 +37,7 @@ async function startConsumer() {
                     }
                     const company = await getCompanyById(body.companyId);
 
-                    const result = await aplanta(company, body.dataQr, body.userId);
+                    const result = await aplanta(company, body.dataQr, body.userId,body);
 
                     result.feature = "aplanta";
 
