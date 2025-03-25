@@ -17,7 +17,8 @@ export async function sendToShipmentStateMicroService(companyId, userId, shipmen
             subestado: null,
             estadoML: null,
             fecha: formatFechaUTC3(),
-            quien: userId
+            quien: userId,
+            operacion:"aplanta"
         };
 
         const connection = await connect(RABBITMQ_URL);
