@@ -124,3 +124,9 @@ function incrementarIngresados(fecha, empresa, chofer) {
 function obtenerIngresados(fecha, empresa, chofer) {
     return contadoresIngresados[`${fecha}:${empresa}:${chofer}`] || 0;
 }
+
+function limpiarContadores() {
+    console.log("🔄 Reiniciando contadores de envíos ingresados...");
+    Object.keys(contadoresIngresados).forEach(clave => delete contadoresIngresados[clave]);
+}
+setInterval(limpiarContadores, 14 * 24 * 60 * 60 * 1000);
