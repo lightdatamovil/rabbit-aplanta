@@ -47,6 +47,7 @@ async function startConsumer() {
                 } catch (error) {
                     logRed(`Error al procesar el mensaje: ${error.message}`);
 
+                    body.feature = "aplanta";
                     let a = channel.sendToQueue(
                         body.channel,
                         Buffer.from(JSON.stringify({ feature: body.feature, estadoRespuesta: false, mensaje: error.message, error: true })),
