@@ -1,6 +1,9 @@
 import { executeQuery } from '../../db.js';
 export async function crearLog(idEmpresa, operador,shipmentId, endpoint, result, quien,conLocal, errors,idDispositivo, modelo, marca, versionAndroid, versionApp) {
    console.log("llegamos a entrar");
+   if (shipmentId == null || shipmentId == undefined) {
+    shipmentId = 0       
+       }
    
     try {
         const fechaunix = Date.now();
