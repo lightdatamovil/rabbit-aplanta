@@ -1,6 +1,6 @@
 import { executeQuery, getClientsByCompany, getDriversByCompany } from "../../../db.js";
 import { logCyan, logPurple, logRed, logYellow } from "../../../src/funciones/logsCustom.js";
-const contadoresIngresados = {}; 
+const contadoresIngresados = {};
 
 export async function informe(dbConnection, companyId, clientId, userId, shipmentId) {
     const hoy = new Date().toISOString().split('T')[0];
@@ -33,16 +33,16 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
         });
 
 
-// Función para incrementar el contador
+        // Función para incrementar el contador
 
-// En algún lugar donde se registre un nuevo ingreso:
-incrementarIngresados(hoy, companyId, userId);
+        // En algún lugar donde se registre un nuevo ingreso:
+        incrementarIngresados(hoy, companyId, userId);
 
-// Reemplazo de la consulta SQL con la variable local
-const ingresadosHoyChofer = obtenerIngresados(hoy, companyId, userId);
-logPurple(`Ingresados hoy por chofer: ${ingresadosHoyChofer}`);
+        // Reemplazo de la consulta SQL con la variable local
+        const ingresadosHoyChofer = obtenerIngresados(hoy, companyId, userId);
+        logPurple(`Ingresados hoy por chofer: ${ingresadosHoyChofer}`);
 
-    
+
         let choferasignado;
         let zonaentrega;
         let sucursal;
@@ -126,7 +126,7 @@ function obtenerIngresados(fecha, empresa, chofer) {
 }
 
 function limpiarContadores() {
-    console.log("🔄 Reiniciando contadores de envíos ingresados...");
+    logPurple("🔄 Reiniciando contadores de envíos ingresados...");
     Object.keys(contadoresIngresados).forEach(clave => delete contadoresIngresados[clave]);
 }
 setInterval(limpiarContadores, 14 * 24 * 60 * 60 * 1000);
