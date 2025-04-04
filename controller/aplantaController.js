@@ -8,7 +8,8 @@ import { logCyan, logRed } from "../src/funciones/logsCustom.js";
 import { crearLog } from "../src/funciones/crear_log.js";
 
 
-export async function aplanta(company, dataQr, userId,body) {
+export async function aplanta(company, dataQr, userId, body) {
+    const startTime = performance.now();
     const dbConfig = getProdDbConfig(company);
     const dbConnection = mysql.createConnection(dbConfig);
     dbConnection.connect();
@@ -16,7 +17,6 @@ export async function aplanta(company, dataQr, userId,body) {
     const dbConfigLocal = getLocalDbConfig();
     const dbConnectionLocal = mysql.createConnection(dbConfigLocal);
     dbConnectionLocal.connect();
-       
 
     try {
         let response;
@@ -44,14 +44,17 @@ export async function aplanta(company, dataQr, userId,body) {
                 response = await handleExternalNoFlex(dbConnection, dataQr, company.did, userId);
             }
         }
-crearLog(company.did, userId, dataQr.did, "1", body, userId, dbConnectionLocal, JSON.stringify(response));
+        const endTime = performance.now();
+        const tiempo = endTime - startTime;
+        crearLog(company.did, userId, dataQr.did, "1", body, userId, dbConnectionLocal, JSON.stringify(response), tiempo);
         return response;
     } catch (error) {
-        crearLog(company.did, userId, dataQr.did, "-1", body, userId, dbConnectionLocal, error.stack);
+        const endTime = performance.now();
+        const tiempo = endTime - startTime;
+        crearLog(company.did, userId, dataQr.did, "-1", body, userId, dbConnectionLocal, error.stack, tiempo);
         logRed(`Error en poner a planta: ${error.stack}`)
         throw error;
-    }
-    finally {
+    } finally {
         dbConnection.end();
     }
 }
