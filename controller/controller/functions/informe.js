@@ -37,8 +37,6 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
 
         // Reemplazo de la consulta SQL con la variable local
         const ingresadosHoyChofer = obtenerIngresados(hoy, companyId, userId);
-        logPurple(`Ingresados hoy por chofer: ${ingresadosHoyChofer}`);
-
 
         let choferasignado;
         let zonaentrega;
