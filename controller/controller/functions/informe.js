@@ -16,11 +16,8 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
             AND eh.estado IN (7, 0, 1);
         `;
 
-        const startTime1 = performance.now();
         const resultIngresadosHoy = await executeQuery(dbConnection, queryIngresadosHoy, [clientId, `${hoy} 00:00:00`, `${hoy} 23:59:59`]);
-        let endTime1 = performance.now();
 
-        logPurple(`Tiempo de ejecución1: ${endTime1 - startTime1} ms`);
         let amountOfAPlanta = 0;
         let amountOfARetirarAndRetirados = 0;
 
@@ -58,10 +55,7 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
                 WHERE e.superado=0 AND e.elim=0 AND e.did = ?;
             `;
 
-            const startTime3 = performance.now();
             const resultEnvios = await executeQuery(dbConnection, queryEnvios, [shipmentId]);
-            let endTime3 = performance.now();
-            logPurple(`Tiempo de ejecución3: ${endTime3 - startTime3} ms`);
 
             if (resultEnvios.length > 0) {
                 choferasignado = resultEnvios[0].choferAsignado || 'Sin asignar';
@@ -70,15 +64,9 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
             }
         }
 
-        const startTime4 = performance.now();
         const companyClients = await getClientsByCompany(dbConnection, companyId);
-        let endTime4 = performance.now();
-        logPurple(`Tiempo de ejecución4: ${endTime4 - startTime4} ms`);
 
-        const startTime5 = performance.now();
         const companyDrivers = await getDriversByCompany(dbConnection, companyId);
-        let endTime5 = performance.now();
-        logPurple(`Tiempo de ejecución5: ${endTime5 - startTime5} ms`);
 
         if (companyClients[clientId] === undefined) {
             throw new Error("Cliente no encontrado");
