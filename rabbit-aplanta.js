@@ -78,7 +78,7 @@ function startConsuming(channel) {
             if (errorMessage) throw new Error(errorMessage);
 
             const company = await getCompanyById(body.companyId);
-            const result = await aplanta(company, body.dataQr, body.userId, body);
+            const result = await aplanta(company, body);
 
             result.feature = "aplanta";
 

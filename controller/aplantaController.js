@@ -8,7 +8,7 @@ import { logCyan, logRed } from "../src/funciones/logsCustom.js";
 import { crearLog } from "../src/funciones/crear_log.js";
 
 
-export async function aplanta(company, dataQr, userId, body) {
+export async function aplanta(company, body) {
     const startTime = performance.now();
     const dbConfig = getProdDbConfig(company);
     const dbConnection = mysql.createConnection(dbConfig);
@@ -20,6 +20,8 @@ export async function aplanta(company, dataQr, userId, body) {
 
     try {
         let response;
+        const dataQr = body.dataQr;
+        const userId = body.userId;
 
         const isFlex = dataQr.hasOwnProperty("sender_id");
 
@@ -46,15 +48,16 @@ export async function aplanta(company, dataQr, userId, body) {
         }
         const endTime = performance.now();
         const tiempo = endTime - startTime;
-        crearLog(company.did, userId, dataQr.did, "1", body, userId, dbConnectionLocal, JSON.stringify(response), tiempo);
+        crearLog(dbConnectionLocal, company.did, userId, body.profile, body, tiempo, response, "rabbit", true);
         return response;
     } catch (error) {
         const endTime = performance.now();
         const tiempo = endTime - startTime;
-        crearLog(company.did, userId, dataQr.did, "-1", body, userId, dbConnectionLocal, error.stack, tiempo);
+        crearLog(dbConnectionLocal, company.did, userId, body.profile, body, tiempo, response, "rabbit", true);
         logRed(`Error en poner a planta: ${error.stack}`)
         throw error;
     } finally {
         dbConnection.end();
+        dbConnectionLocal.end();
     }
 }
