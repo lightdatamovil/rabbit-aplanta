@@ -18,7 +18,7 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
 
         const resultIngresadosHoy = await executeQuery(dbConnection, queryIngresadosHoy, [clientId, `${hoy} 00:00:00`, `${hoy} 23:59:59`]);
 
-        let amountOfAPlanta = 0;
+        let amountOfAPlanta = 1;
         let amountOfARetirarAndRetirados = 0;
 
         resultIngresadosHoy.forEach(row => {
