@@ -29,41 +29,50 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
             }
         });
 
-
-        // Función para incrementar el contador
-
-        // En algún lugar donde se registre un nuevo ingreso:
         incrementarIngresados(hoy, companyId, userId);
-
-        // Reemplazo de la consulta SQL con la variable local
         const ingresadosHoyChofer = obtenerIngresados(hoy, companyId, userId);
 
         let choferasignado;
         let zonaentrega;
-        let sucursal;
+        let sucursal = "Sin información";
 
         if (shipmentId > 0) {
+            let tieneSucursalDistribucion = false;
+
+            try {
+                const columnas = await executeQuery(dbConnection, `SHOW COLUMNS FROM envios LIKE 'didSucursalDistribucion'`);
+                tieneSucursalDistribucion = Array.isArray(columnas) && columnas.length > 0;
+            } catch (e) {
+                logRed("Error al verificar columna didSucursalDistribucion: " + e.message);
+            }
+
             const queryEnvios = `
-                SELECT ez.nombre AS zona, e.choferAsignado, sd.nombre AS sucursal
+                SELECT 
+                    ez.nombre AS zona, 
+                    e.choferAsignado
+                    ${tieneSucursalDistribucion ? ', sd.nombre AS sucursal' : ''}
                 FROM envios AS e 
                 LEFT JOIN envios_zonas AS ez 
                     ON ez.elim=0 AND ez.superado=0 AND ez.did = e.didEnvioZona
+                    ${tieneSucursalDistribucion ? `
                 LEFT JOIN sucursales_distribucion AS sd 
-                    ON sd.elim=0 AND sd.superado=0 AND sd.did = e.didSucursalDistribucion
+                    ON sd.elim=0 AND sd.superado=0 AND sd.did = e.didSucursalDistribucion` : ''}
                 WHERE e.superado=0 AND e.elim=0 AND e.did = ?;
             `;
 
             const resultEnvios = await executeQuery(dbConnection, queryEnvios, [shipmentId]);
 
-            if (resultEnvios.length > 0) {
-                choferasignado = resultEnvios[0].choferAsignado || 'Sin asignar';
-                zonaentrega = resultEnvios[0].zona || "Sin información";
-                sucursal = resultEnvios[0].sucursal || "Sin información";
+            if (Array.isArray(resultEnvios) && resultEnvios.length > 0) {
+                const envio = resultEnvios[0];
+                choferasignado = envio.choferAsignado || 'Sin asignar';
+                zonaentrega = envio.zona || "Sin información";
+                if (tieneSucursalDistribucion) {
+                    sucursal = envio.sucursal || "Sin información";
+                }
             }
         }
 
         const companyClients = await getClientsByCompany(dbConnection, companyId);
-
         const companyDrivers = await getDriversByCompany(dbConnection, companyId);
 
         if (companyClients[clientId] === undefined) {
@@ -81,7 +90,7 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
         logCyan("Se generó el informe");
 
         return {
-            cliente: `${companyClients[clientId]?.nombre || 'Sin información'}`,
+            cliente: companyClients[clientId]?.nombre || 'Sin información',
             aingresarhoy: amountOfAPlanta,
             ingresadoshot: amountOfARetirarAndRetirados,
             ingresadosahora: ingresadosHoyChofer,
