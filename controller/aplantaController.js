@@ -40,8 +40,8 @@ export async function aplanta(company, body) {
             logCyan("No es flex");
             if (company.did == dataQr.empresa) {
                 logCyan("Es externo");
-                console.log(body,"body");
-                
+                console.log(body, "body");
+
                 response = await handleInternalNoFlex(dbConnection, dataQr, company.did, userId);
             } else {
                 logCyan("Es interno");
@@ -55,8 +55,8 @@ export async function aplanta(company, body) {
     } catch (error) {
         const endTime = performance.now();
         const tiempo = endTime - startTime;
-        crearLog(dbConnectionLocal, company.did,  0, body.profile, body, tiempo, response, "rabbit", true);
-        logRed(`Error en poner a planta: ${error.stack}`)
+        crearLog(dbConnectionLocal, company.did, 0, body.profile, body, tiempo, error.stack, "rabbit", true);
+        logRed(`Error en poner a planta: ${error.stack}`);
         throw error;
     } finally {
         dbConnection.end();
