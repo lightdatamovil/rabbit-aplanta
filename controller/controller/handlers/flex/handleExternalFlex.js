@@ -32,6 +32,11 @@ export async function handleExternalFlex(dbConnection, company, dataQr, userId) 
     const logisticasExternas = await executeQuery(dbConnection, queryLogisticasExternas);
     logCyan("Me traigo las logisticas externas");
 
+    if (logisticasExternas.length == 0) {
+        logCyan("No hay logisticas externas vinculadas");
+        return { success: false, message: "No hay logisticas externas vinculadas" };
+    }
+
     /// Por cada logística externa
     for (const logistica of logisticasExternas) {
         logCyan(`logistica externa actual: ${logistica.nombre_fantasia}`);
