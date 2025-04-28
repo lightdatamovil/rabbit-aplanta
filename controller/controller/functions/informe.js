@@ -19,7 +19,7 @@ export async function informe(dbConnection, companyId, clientId, userId, shipmen
         const resultIngresadosHoy = await executeQuery(dbConnection, queryIngresadosHoy, [clientId, `${hoy} 00:00:00`, `${hoy} 23:59:59`]);
 
         let amountOfAPlanta = 1;
-        let amountOfARetirarAndRetirados = 0;
+        let amountOfARetirarAndRetirados = 1;
 
         resultIngresadosHoy.forEach(row => {
             if (row.estado === 1) {
