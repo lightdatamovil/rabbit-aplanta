@@ -29,7 +29,7 @@ export async function handleExternalFlex(dbConnection, company, dataQr, userId) 
             FROM clientes 
             WHERE superado = 0 AND elim = 0 AND codigoVinculacionLogE != ''
         `;
-    const logisticasExternas = await executeQuery(dbConnection, queryLogisticasExternas);
+    const logisticasExternas = await executeQuery(dbConnection, queryLogisticasExternas, [], true);
     logCyan("Me traigo las logisticas externas");
 
     if (logisticasExternas.length == 0) {
